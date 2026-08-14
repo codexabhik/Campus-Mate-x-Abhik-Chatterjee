@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusMate – Student Productivity & Campus Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="loginScreen" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-graduation-cap"></i>
+                <h2>Welcome to CampusMate</h2>
+                <p>Your one-stop academic productivity hub</p>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group-auth">
+                    <label for="userNameInput"><i class="fas fa-user"></i> Student Name</label>
+                    <input type="text" id="userNameInput" value="Abhik Chatterjee" placeholder="e.g. Abhik Chatterjee" required>
+                </div>
+                <div class="input-group-auth">
+                    <label for="userRoleInput"><i class="fas fa-university"></i> Department / Semester</label>
+                    <input type="text" id="userRoleInput" value="CSE-7th" placeholder="e.g. CSE-7th">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Enter CampusMate <i class="fas fa-arrow-right"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>CampusMate</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-item active" onclick="switchView('dashboard', this)"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="#" class="nav-item" onclick="switchView('tasks', this)"><i class="fas fa-tasks"></i> Task Manager</a>
+                <a href="#" class="nav-item" onclick="switchView('assignments', this)"><i class="fas fa-book"></i> Assignments</a>
+                <a href="#" class="nav-item" onclick="switchView('notes', this)"><i class="fas fa-sticky-note"></i> Notes</a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-chip">
+                    <i class="fas fa-user-graduate"></i>
+                    <div>
+                        <small>Logged in as</small>
+                        <strong id="sidebarUserName">Abhik Chatterjee</strong>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-greeting">
+                    <div class="greeting-text">
+                        <h2>Hello, <span id="displayUserName">Abhik Chatterjee</span> 👋</h2>
+                        <span class="badge-dept" id="displayUserRole">CSE-7th</span>
+                    </div>
+                </div>
+
+                <div class="topbar-actions">
+                    <div class="date-pill">
+                        <i class="far fa-calendar-alt"></i>
+                        <span id="currentDateDisplay">Fri, Aug 14, 2026</span>
+                    </div>
+
+                    <select id="campusLocation" class="location-select" onchange="changeCampus(this.value)">
+                        <option value="22.57,88.36,Kolkata">Kolkata</option>
+                        <option value="28.61,77.20,Delhi">Delhi</option>
+                        <option value="19.07,72.87,Mumbai">Mumbai</option>
+                        <option value="12.97,77.59,Bengaluru">Bengaluru</option>
+                    </select>
+
+                    <div id="weatherWidget" class="weather-pill">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+
+                    <button id="themeToggle" class="icon-btn" onclick="toggleDarkMode()" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <section id="view-dashboard" class="app-view active-view">
+                <div class="stats-grid">
+                    <div class="stat-card stat-blue">
+                        <div class="stat-info">
+                            <h4>TOTAL TASKS</h4>
+                            <span id="statTotalTasks">0</span>
+                        </div>
+                        <i class="fas fa-tasks stat-icon"></i>
+                    </div>
+                    <div class="stat-card stat-orange">
+                        <div class="stat-info">
+                            <h4>PENDING ASSIGNMENTS</h4>
+                            <span id="statPendingAssignments">0</span>
+                        </div>
+                        <i class="fas fa-clock stat-icon"></i>
+                    </div>
+                    <div class="stat-card stat-green">
+                        <div class="stat-info">
+                            <h4>COMPLETION RATE</h4>
+                            <span id="statCompletion">0%</span>
+                        </div>
+                        <i class="fas fa-chart-line stat-icon"></i>
+                    </div>
+                </div>
+
+                <div class="modules-grid">
+                    <div class="card">
+                        <h3><i class="fas fa-bell text-warning"></i> Upcoming Deadlines</h3>
+                        <div id="dashboardUpcomingList" class="compact-list"></div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-check-double text-primary"></i> Active Task Queue</h3>
+                        <div id="dashboardQuickTasks" class="compact-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-tasks" class="app-view">
+                <div class="section-header">
+                    <h2><i class="fas fa-tasks text-primary"></i> Task Manager</h2>
+                    <p>Add, edit, complete, and prioritize your daily academic tasks.</p>
+                </div>
+                <div class="card">
+                    <div class="input-row">
+                        <input type="text" id="taskInput" placeholder="What do you need to do? (e.g. Revise Computer Networks)">
+                        <button class="btn btn-primary" onclick="addTask()"><i class="fas fa-plus"></i> Add Task</button>
+                    </div>
+                    <ul id="taskList" class="item-list"></ul>
+                </div>
+            </section>
+
+            <section id="view-assignments" class="app-view">
+                <div class="section-header">
+                    <h2><i class="fas fa-book text-primary"></i> Assignment Tracker</h2>
+                    <p>Track deadlines, manage submissions, and prevent late hand-ins.</p>
+                </div>
+                <div class="card">
+                    <div class="input-row">
+                        <input type="text" id="assignTitle" placeholder="Assignment Title / Subject">
+                        <input type="date" id="assignDate">
+                        <button class="btn btn-primary" onclick="addAssignment()"><i class="fas fa-plus"></i> Add Assignment</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject / Title</th>
+                                    <th>Deadline</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assignmentList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-notes" class="app-view">
+                <div class="section-header">
+                    <h2><i class="fas fa-sticky-note text-primary"></i> Study Notes</h2>
+                    <p>Create, organize, and edit quick revision notes and lecture summaries.</p>
+                </div>
+                <div class="card">
+                    <div class="input-row-stacked">
+                        <input type="text" id="noteTitle" placeholder="Note Title (e.g. Operating System Semaphores)">
+                        <textarea id="noteBody" rows="3" placeholder="Write down key concepts, formulas, or takeaways..."></textarea>
+                        <button class="btn btn-primary" onclick="addNote()"><i class="fas fa-save"></i> Save Study Note</button>
+                    </div>
+                </div>
+                <div id="notesGrid" class="notes-grid" style="margin-top: 20px;"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 id="editModalTitle">Edit Item</h3>
+            <div id="editModalBody"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary" id="saveEditBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
