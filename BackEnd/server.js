@@ -135,7 +135,7 @@ app.delete('/api/notes/:id', (req, res) => {
 
 app.use(express.static(path.join(__dirname, '../FrontEnd')));
 
-app.get('*', (req, res) => {
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../FrontEnd/index.html'));
 });
 
