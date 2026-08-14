@@ -86,6 +86,14 @@ body {
     margin-bottom: 18px;
 }
 
+.auth-row {
+    display: flex;
+    gap: 12px;
+}
+.auth-row .input-group-auth {
+    flex: 1;
+}
+
 .input-group-auth label {
     display: block;
     font-size: 0.85rem;

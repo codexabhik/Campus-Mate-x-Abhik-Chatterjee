@@ -49,7 +49,11 @@ async function checkAuth() {
 async function handleLogin(e) {
     e.preventDefault();
     const name = document.getElementById('userNameInput').value.trim();
-    const role = document.getElementById('userRoleInput').value.trim();
+    const dept = document.getElementById('userDeptInput').value.trim();
+    const sem = document.getElementById('userSemInput').value.trim();
+    
+    // Formats cleanly for your dashed badge: e.g. "CSE Core | 6th Sem"
+    const role = dept && sem ? `${dept} | ${sem.toLowerCase().includes('sem') ? sem : sem + ' Sem'}` : (dept || sem || 'CSE Core | 6th Sem');
 
     if (!name) return;
 
@@ -57,7 +61,7 @@ async function handleLogin(e) {
         const res = await fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, role: role || 'CSE-7th' })
+            body: JSON.stringify({ name, role })
         });
         const data = await res.json();
         currentUser = data.user;
@@ -68,7 +72,7 @@ async function handleLogin(e) {
 }
 
 async function logout() {
-    if (confirm('Logging out will clear all your stored tasks, assignments, and notes from server memory. Continue?')) {
+    if (confirm('Logging out will clear all your data. Continue?')) {
         try {
             await fetch(`${API_URL}/logout`, { method: 'POST' });
             currentUser = null;
