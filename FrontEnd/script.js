@@ -1,5 +1,7 @@
-const API_URL = 'http://localhost:5000/api';
-
+const API_URL = window.location.origin.includes('localhost')
+    ? 'http://localhost:5000/api'
+    : '/api';
+    
 let currentUser = null;
 let tasks = [];
 let assignments = [];

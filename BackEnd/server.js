@@ -1,137 +1,144 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-let db = {
-    user: null,
-    tasks: [],
-    assignments: [],
-    notes: []
-};
+let currentUser = null;
+let tasks = [];
+let assignments = [];
+let notes = [];
 
 app.get('/api/auth', (req, res) => {
-    res.json({ user: db.user });
+    res.json({ user: currentUser });
 });
 
 app.post('/api/login', (req, res) => {
     const { name, role } = req.body;
-    if (!name) return res.status(400).json({ error: 'Name is required' });
-
-    db = {
-        user: { name, role: role || 'CSE-7th' },
-        tasks: [],
-        assignments: [],
-        notes: []
-    };
-
-    res.json({ message: 'Login successful', user: db.user });
+    currentUser = { name, role };
+    tasks = [];
+    assignments = [];
+    notes = [];
+    res.json({ success: true, user: currentUser });
 });
 
 app.post('/api/logout', (req, res) => {
-    db = {
-        user: null,
-        tasks: [],
-        assignments: [],
-        notes: []
-    };
-    res.json({ message: 'Logged out and session data wiped' });
+    currentUser = null;
+    tasks = [];
+    assignments = [];
+    notes = [];
+    res.json({ success: true });
 });
 
-app.get('/api/tasks', (req, res) => {
-    res.json(db.tasks);
-});
+app.get('/api/tasks', (req, res) => res.json(tasks));
 
 app.post('/api/tasks', (req, res) => {
-    const { text } = req.body;
-    if (!text) return res.status(400).json({ error: 'Task text required' });
-
-    const newTask = { id: Date.now(), text, completed: false };
-    db.tasks.push(newTask);
+    const newTask = { id: Date.now(), text: req.body.text, completed: false };
+    tasks.push(newTask);
     res.status(201).json(newTask);
 });
 
 app.put('/api/tasks/:id/toggle', (req, res) => {
     const id = parseInt(req.params.id);
-    db.tasks = db.tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-    res.json(db.tasks);
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        task.completed = !task.completed;
+        res.json(task);
+    } else {
+        res.status(404).json({ error: 'Task not found' });
+    }
 });
 
 app.put('/api/tasks/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    const { text } = req.body;
-    db.tasks = db.tasks.map(t => t.id === id ? { ...t, text } : t);
-    res.json(db.tasks);
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        task.text = req.body.text;
+        res.json(task);
+    } else {
+        res.status(404).json({ error: 'Task not found' });
+    }
 });
 
 app.delete('/api/tasks/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    db.tasks = db.tasks.filter(t => t.id !== id);
-    res.json(db.tasks);
+    tasks = tasks.filter(t => t.id !== id);
+    res.json({ success: true });
 });
 
-app.get('/api/assignments', (req, res) => {
-    res.json(db.assignments);
-});
+app.get('/api/assignments', (req, res) => res.json(assignments));
 
 app.post('/api/assignments', (req, res) => {
-    const { title, date } = req.body;
-    if (!title || !date) return res.status(400).json({ error: 'Title and date required' });
-
-    const newAssign = { id: Date.now(), title, date, completed: false };
-    db.assignments.push(newAssign);
+    const newAssign = { id: Date.now(), title: req.body.title, date: req.body.date, completed: false };
+    assignments.push(newAssign);
     res.status(201).json(newAssign);
 });
 
 app.put('/api/assignments/:id/toggle', (req, res) => {
     const id = parseInt(req.params.id);
-    db.assignments = db.assignments.map(a => a.id === id ? { ...a, completed: !a.completed } : a);
-    res.json(db.assignments);
+    const assign = assignments.find(a => a.id === id);
+    if (assign) {
+        assign.completed = !assign.completed;
+        res.json(assign);
+    } else {
+        res.status(404).json({ error: 'Assignment not found' });
+    }
 });
 
 app.put('/api/assignments/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    const { title, date } = req.body;
-    db.assignments = db.assignments.map(a => a.id === id ? { ...a, title, date } : a);
-    res.json(db.assignments);
+    const assign = assignments.find(a => a.id === id);
+    if (assign) {
+        assign.title = req.body.title;
+        assign.date = req.body.date;
+        res.json(assign);
+    } else {
+        res.status(404).json({ error: 'Assignment not found' });
+    }
 });
 
 app.delete('/api/assignments/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    db.assignments = db.assignments.filter(a => a.id !== id);
-    res.json(db.assignments);
+    assignments = assignments.filter(a => a.id !== id);
+    res.json({ success: true });
 });
 
-app.get('/api/notes', (req, res) => {
-    res.json(db.notes);
-});
+app.get('/api/notes', (req, res) => res.json(notes));
 
 app.post('/api/notes', (req, res) => {
-    const { title, body } = req.body;
-    if (!title || !body) return res.status(400).json({ error: 'Title and body required' });
-
-    const newNote = { id: Date.now(), title, body };
-    db.notes.push(newNote);
+    const newNote = { id: Date.now(), title: req.body.title, body: req.body.body };
+    notes.push(newNote);
     res.status(201).json(newNote);
 });
 
 app.put('/api/notes/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    const { title, body } = req.body;
-    db.notes = db.notes.map(n => n.id === id ? { ...n, title, body } : n);
-    res.json(db.notes);
+    const note = notes.find(n => n.id === id);
+    if (note) {
+        note.title = req.body.title;
+        note.body = req.body.body;
+        res.json(note);
+    } else {
+        res.status(404).json({ error: 'Note not found' });
+    }
 });
 
 app.delete('/api/notes/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    db.notes = db.notes.filter(n => n.id !== id);
-    res.json(db.notes);
+    notes = notes.filter(n => n.id !== id);
+    res.json({ success: true });
+});
+
+app.use(express.static(path.join(__dirname, '../FrontEnd')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../FrontEnd/index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 CampusMate Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
