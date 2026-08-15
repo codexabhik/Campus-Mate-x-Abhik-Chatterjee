@@ -1,6 +1,6 @@
 # 🎓 CampusMate
 
-> **Your one-stop academic productivity hub.**
+> **Your all-in-one academic hub.**
 
 CampusMate is a full-stack student productivity dashboard designed to streamline daily academic workflows, featuring task management, assignment tracking, lecture notes, and real-time campus weather updates.
 
